@@ -1,6 +1,5 @@
 # construct pattern of direct beam and reflect from a model
 # build a one-d model
-# git test
 import glob
 import os
 import numpy as np
