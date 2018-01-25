@@ -10,25 +10,25 @@ import re
 import statsmodels.api as sm
 from scipy.optimize import minimize
 
-import time
+#import time
 
-t = time.time()
+#t = time.time()
 # qx_dimension determined by the input image qx dimension
 #qx_dimension = 980
 # skip_qx correlate the certain qx position completely masked along qz direction which enable to reconstrcut.
 #skip_qx =  np.concatenate([np.arange(180,245),np.arange(485,496)])
 
-def SAXS_recons(qx_dimension=None,skip_qx=None,alpha_incident=None,\
+def SAXS_para_recons(qx_dimension=None,skip_qx=None,alpha_incident=None,\
 		GISAXS_im=None,x0=None,fitting_range_model=None,\
 		qz=None,qz_r=None,qz_d=None,qz_f=None,\
 		reflc_params=None,trans_params=None,r_f=None,t_f=None,\
 		qz_min=None,qz_max=None,range_index_min=None,\
 		range_index_max=None):
-	fitting_portion_model = np.zeros((len(x0),len(alpha_incident)))
-	im_recons = np.zeros((len(x0),GISAXS_im.shape[1]))
-	for j in qx_dimension: 
+            fitting_portion_model = np.zeros((len(x0),len(alpha_incident)))
+	    j = qx_dimension 
 	    if j in skip_qx:#,np.arange(550,580)]):
 		pass
+		return np.zeros((len(x0),))
 	    else:   
 		for i in range(len(alpha_incident)):
 		    
@@ -47,7 +47,7 @@ def SAXS_recons(qx_dimension=None,skip_qx=None,alpha_incident=None,\
 		y0 = log(fitting_portion_model[:,1])#np.interp(np.linspace(np.min(qz[:,1]),np.max(qz[:,1]),x0_length),qz[:,1],log(model)[:,1])
 		#sys.exit()
 		if np.size(y0[isnan(y0)==1])==0:
-		    pass
+		    pass 
 		else: y0[isnan(y0)==1] = np.interp(x0[isnan(y0)==1],x0[isnan(y0)==0],y0[isnan(y0)==0])
 		def fun(y,x=x0,I1=log(fitting_portion_model),qz1=fitting_range_model,alpha_incident=alpha_incident,
 			qz_d=qz_d,qz_r=qz_r,t_f=t_f,r_f=r_f,reflc_params=reflc_params,trans_params=trans_params):
@@ -74,20 +74,10 @@ def SAXS_recons(qx_dimension=None,skip_qx=None,alpha_incident=None,\
 					t_f[i]**2*reflc_params[:,i]**2*exp(I_reflect)+trans_params[:,i]**2*r_f[i]**2*exp(I_reflect)+r_f[i]**2*reflc_params[:,i]**2*exp(I_direct)))
 		    
 		    return np.sum(norm_judge)
-		#I_reflect,I_direct,qz_max,qz_min =fun(y0,x=x0,I1=log(fitting_portion_model),qz1=fitting_range_model,alpha_incident=alpha_incident,
-		#        qz_d=qz_d,qz_r=qz_r,t_f=t_f,r_f=r_f,reflc_params=reflc_params,trans_params=trans_params)            
-		#sys.exit()
-		#if j == 0:
 		ret = minimize(fun, y0,method="L-BFGS-B",options={'maxfun':3000})
 		#else:
-		#    y0 = smoothed_fitting   
-		#    ret = minimize(fun, y0,method="L-BFGS-B",options={'maxfun':3000})
-		#im_recons[:,j]=exp(ret['x'])
-		smoothed_fitting = np.interp(x0,x0[isnan(ret.x)==0],sm.nonparametric.lowess(ret.x,x0,frac=.03)[:,1])
-		im_recons[:,j]=exp(ret.x)
-		#im_recons[:,j]=exp(smoothed_fitting)
 		#if (j%100)==0:
 		#    print time.time()-t
-	return im_recons
+            return ret.x
 
 #print time.time()-t

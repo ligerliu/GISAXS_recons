@@ -20,13 +20,14 @@ The meaning of input:
 	qz is reciprocal coordinate calculate from detector space
 	reflc correlate to the reflectivity of sample, could be measured or estimated
 	q_reflc reciprocal coordinate correlate to the reflectivity curve
-	trans_index is transmission coefficient which could be fitted or estimated basing on reflecti		vity of sample, the reciprocal coordinate is similar to the reflc
+	trans_index is transmission coefficient which could be fitted or estimated basing on reflectivity of sample, the reciprocal coordinate is similar to the reflc
 	
-coefficient is precalculate the effect of distortion of refraction. The refraction only effects the scattering along the z–direction
+coefficient is precalculate the effect of distortion of refraction. The refraction only effects the scattering along the z direction
 '''
 
 
-def coefficient_calculation(x0,alpha_incident,ambient_n,film_n,qz,q_reflc,reflc,trans_index):
+def coefficient_calculation(x0,alpha_incident,ambient_n,film_n,qz,q_reflc,reflc,trans_index,k0):
+    x0_length = len(x0)
     qz_r = np.zeros((len(x0),len(alpha_incident)))
     qz_d = np.zeros((len(x0),len(alpha_incident)))
     qz_f = np.zeros((len(x0),len(alpha_incident)))
@@ -45,7 +46,7 @@ def coefficient_calculation(x0,alpha_incident,ambient_n,film_n,qz,q_reflc,reflc,
         # Breiby paper a=only consider two term for DWBA
         #direct beam
         alpha_incident_eff[i] = np.arccos(cos(alpha_incident[i])*ambient_n/film_n)
-        two_theta = 2*arcsin(x/2/k0)
+        two_theta = 2*arcsin(x0/2/k0)
         exit_angle_r = two_theta - alpha_incident_eff[i]
         exit_angle_r[exit_angle_r<0] = np.nan
         exit_angle_r_real = np.arccos(cos(exit_angle_r)*film_n/ambient_n)
@@ -93,12 +94,15 @@ The meaning of output:
 	trans_params: transmission correlate to qz_f
 	r_f: reflectivity at specific qz correlated to alpha_incident_eff
 	t_f: transmission at specific qz correlated to alpha_incident_eff
-	fitting_range_model: re–interpolated qz enable the same array length for late fitting process
+	fitting_range_model: re-interpolated qz enable the same array length for late fitting process
 	qz_min: minimum of qz_r determine the lower bound of fitting_range_model
-	qz_max: maximum of qz-f determine the high bound of fitting_range_model
+	qz_max: maximum of qz_f determine the high bound of fitting_range_model
 	range_index_min: array index of qz_min help to re-interpolate fitting_range_model
 	range_index_max: array index of qz_max help to re-interpolate fitting_range_model
+'''
+
 '''
 alpha_incident_eff,qz_r,qz_d,qz_f,reflc_params,trans_params,r_f,t_f,fitting_range_model,\
 qz_min,qz_max,range_index_min,range_index_max =  coefficient_calculation(x0,alpha_incident,
                                                                 ambient_n,film_n,qz,q_reflc,reflc,trans_index)
+'''
